@@ -57,3 +57,5 @@ class Human:
 		self.desy=trk[self.life-1,1]
 		self.prefSpd=0
 		self.observations=np.zeros((self.life,num_direction*3+3),dtype=float)
+		self.dirx=
+		self.diry=

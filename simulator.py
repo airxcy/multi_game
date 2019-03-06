@@ -32,7 +32,7 @@ class Simulator():
 			i=0
 			for trk in trks:
 				newHuman = Human()
-				newHuman.initFromTrk(trk,i)
+				newHuman.initFromTrk(trk[0::timeStep],i)
 				self.npc.append(newHuman)
 				i+=1
 			self.mortals=np.empty((0), dtype=Agent)
@@ -62,12 +62,13 @@ class Simulator():
 		carnage=np.empty((0), dtype=int)
 		for i in self.mortals:
 			human = self.npc[i]
-			human.age=self.t-human.born
+			human.age=human.age+1
 			if human.age>=human.life:
 				carnage=np.append(carnage,i)
 		self.mortals=np.delete(self.mortals,carnage)
 		for i in self.mortals:
 			for obstacles in range(0,self.scene.walls):
+				#https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
 				for radi in range(0,self.Ndir):
 					rad = self.radDiv*(radi-self.Ndir/2+1)
 					dx,dy=angleVec(dirvec,rad)
