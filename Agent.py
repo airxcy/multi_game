@@ -43,8 +43,8 @@ class Agent():
 
 class Human:
 	def loadFromFile(self):
-
-	def initFromTrk(self,trk,i)
+		print("loading...")
+	def initFromTrk(self,trk,i):
 		self.trk=trk
 		self.life=trk.shape[0]
 		self.born=trk[0,2]
@@ -57,5 +57,17 @@ class Human:
 		self.desy=trk[self.life-1,1]
 		self.prefSpd=0
 		self.observations=np.zeros((self.life,num_direction*3+3),dtype=float)
-		self.dirx=
-		self.diry=
+		x=self.desx-self.srcx
+		y=self.desy-self.srcy
+		d=np.sqrt(x*x+y*y)
+		self.dirx=x/d
+		self.diry=y/d
+		x=self.trk[1,0]-self.trk[0,0]
+		y=self.trk[1,1]-self.trk[0,1]
+		d=np.sqrt(x*x+y*y)
+		if d>0:
+			self.dirx=x/d
+			self.diry=y/d
+	def getLoc(self):
+		reutrn (self.trk[self.age,0],self.trk[self.age,1])
+

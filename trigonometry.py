@@ -20,10 +20,10 @@ def angleLR(x0,y0,x1,y1,dirvec):
 	return (lr_sides,rad,veclen)
 
 
-def angleVec(dirvec,rad):
+def angleVec(dx,dy,rad):
 	## angle of 2 vectors and left/right sizes
-	vx=dirvec[0]*math.cos(rad)-dirvec[1]*math.sin(rad)
-	vy=dirvec[0]*math.sin(rad)+dirvec[1]*math.cos(rad)
+	vx=dx*math.cos(rad)-dy*math.sin(rad)
+	vy=dx*math.sin(rad)+dy*math.cos(rad)
 	return (vx,vy)
 
 

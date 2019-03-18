@@ -36,7 +36,7 @@ class simWindow(pyglet.window.Window):
 		self.sceneImg=[]
 		self.buffLen=6
 		for i in range(0,self.buffLen):
-			img = cv2.imread("../"+self.simulator.name+"/Frame/%06d.jpg"%(i*20))
+			img = cv2.imread("../crowdData/"+self.simulator.name+"/%06d.jpg"%(i*20))
 			warpedImg = cv2.warpPerspective(img,M,(3*warpscale,3*warpscale))
 			self.sceneImg.append(image.ImageData(3*warpscale,3*warpscale,'BGR',warpedImg.tostring()))
 		self.vhead=0
