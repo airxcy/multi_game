@@ -32,13 +32,13 @@ class Simulator():
 		self.mortals=np.array(list(range(0,self.numtrk)))
 		i=0
 		for trk in self.realTrk:
-			newHuman = Human()
-			trk.shape[0]>1
+			if trk.shape[0]>1:
+				newHuman = Human()
 				newHuman.initFromTrk(trk[0::self.timeStep],i)
 				self.npc.append(newHuman)
 				i+=1
-		trks=
-		self.mortals=np.empty((0), dtype=Agent)
+		# trks=
+		self.mortals=np.empty((0), dtype=int)
 	def newEnter(self,newAgents):
 		self.agentQue=np.append(self.agentQue,newAgents)
 	def disappear(self,idxset):
@@ -66,9 +66,16 @@ class Simulator():
 		for i in self.mortals:
 			human = self.npc[i]
 			human.age=human.age+1
+			print(human.age,human.life)
 			if human.age>=human.life:
+				print(carnage)
 				carnage=np.append(carnage,i)
+		
 		self.mortals=np.delete(self.mortals,carnage)
+		# for i in self.mortals:
+		# 	human = self.npc[i]
+		# 	human.age=human.age+1
+			
 		# for i in self.mortals:
 		# 	human = self.npc[i]
 		# 	for obstacles in range(0,self.scene.walls):

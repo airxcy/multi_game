@@ -69,5 +69,6 @@ class Human:
 			self.dirx=x/d
 			self.diry=y/d
 	def getLoc(self):
-		reutrn (self.trk[self.age,0],self.trk[self.age,1])
+		print(self.trk.shape,self.age)
+		return (self.trk[self.age,0],self.trk[self.age,1])
 

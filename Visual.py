@@ -52,8 +52,9 @@ class simWindow(pyglet.window.Window):
 			clr.extend((0,255,0))
 			i+=1
 		#update Real Agent
-		for agent in self.simulator.realQue:
-			l.extend((int(agent.state.x),int(agent.state.y)))
+		for hid in self.simulator.mortals:
+			x,y=self.simulator.npc[hid].getLoc()
+			l.extend((int(x),int(y)))
 			clr.extend((255,0,0))
 			i+=1
 		l.extend((int(topLeftCoord[0]),int(topLeftCoord[1])))
@@ -71,7 +72,7 @@ class simWindow(pyglet.window.Window):
 			warpedImg = cv2.warpPerspective(img,M,(3*warpscale,3*warpscale))
 			self.sceneImg[self.vtail]=image.ImageData(3*warpscale,3*warpscale,'BGR',warpedImg.tostring())
 			self.vtail=(self.vtail+1)%self.buffLen
-			self.vhead=(self.vhead+1)%self.buffLen	
+			self.vhead=(self.vhead+1)%self.buffLen
 		self.label = pyglet.text.Label('%d'%(self.simulator.t),
 		                          font_name='Times New Roman',
 		                          font_size=36,
