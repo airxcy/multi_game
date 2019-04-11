@@ -19,6 +19,14 @@ def angleLR(x0,y0,x1,y1,dirvec):
 	rad = math.acos(dircos)
 	return (lr_sides,rad,veclen)
 
+def vec2Angle(x1,y1,x2,y2):
+	dircos = x1*x2+y1*y2
+	dircross = x1*y2-y1*x2
+	lr_sides = 1-int(dircross>0)*2
+	dircos=(dircos>1.0)*1.0+(dircos<=1.0)*dircos
+	dircos=(dircos<-1.0)*(-1.0)+(dircos>=-1.0)*dircos
+	rad = math.acos(dircos)
+	return (lr_sides,rad)
 
 def angleVec(dx,dy,rad):
 	## angle of 2 vectors and left/right sizes

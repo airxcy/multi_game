@@ -33,16 +33,16 @@ class simWindow(pyglet.window.Window):
 			self.wallList.append(pyglet.graphics.vertex_list(numdot,('v2i', tuple(pos)),('c3B', tuple(clr))))
 		self.curPosList=pyglet.graphics.vertex_list(0,('v2i', ()),('c3B', ()))
 		self.curRealList=pyglet.graphics.vertex_list(0,('v2i', ()),('c3B', ()))
+		self.depthList=pyglet.graphics.vertex_list(0,('v2i', ()),('c3B', ()))
 		self.sceneImg=[]
 		self.buffLen=6
 		for i in range(0,self.buffLen):
-			img = cv2.imread("../crowdData/"+self.simulator.name+"/%06d.jpg"%(i*20))
+			img = cv2.imread("D:/crowdData/"+self.simulator.name+"/Frames/%06d.jpg"%(i*20))
 			warpedImg = cv2.warpPerspective(img,M,(3*warpscale,3*warpscale))
 			self.sceneImg.append(image.ImageData(3*warpscale,3*warpscale,'BGR',warpedImg.tostring()))
 		self.vhead=0
 		self.vtail=3
-
-	def updateScene(self):
+	def updatePos(self):
 		#update Virtal Agent
 		l=[]
 		clr=[]
@@ -52,6 +52,7 @@ class simWindow(pyglet.window.Window):
 			clr.extend((0,255,0))
 			i+=1
 		#update Real Agent
+		# print(self.simulator.mortals)
 		for hid in self.simulator.mortals:
 			x,y=self.simulator.npc[hid].getLoc()
 			l.extend((int(x),int(y)))
@@ -66,9 +67,39 @@ class simWindow(pyglet.window.Window):
 		self.curPosList.resize(i)
 		self.curPosList.vertices=l
 		self.curPosList.colors=clr
+	def updateDepth(self):
+		# for hid in self.simulator.mortals:
+		if len(self.simulator.mortals):
+			human=self.simulator.npc[self.simulator.mortals[0]]
+			depth = human.observations[0:num_direction]
+			xc,yc=human.getLoc()
+			l=[]
+			i=0
+			clr=[]
+			for radi in range(0,num_direction):
+				rad = radDiv*(radi-num_direction/2+1)
+				dirx,diry=human.getDir()
+				xr,yr=angleVec(dirx,diry,rad)
+				t=human.observations[human.age,radi]
+				if t<0:
+					t=1000
+				crossx=xc+xr*t
+				crossy=yc+yr*t
+				l.extend((int(xc),int(yc)))
+				l.extend((int(crossx),int(crossy)))
+				clr.extend((0,255,0))
+				clr.extend((0,255,0))
+				i+=2
+			self.depthList.resize(i)
+			self.depthList.vertices=l
+			self.depthList.colors=clr					
+
+	def updateScene(self):
+		self.updatePos()
+		self.updateDepth()
 		#update Background
 		if self.simulator.t%20==0:
-			img = cv2.imread("../"+self.simulator.name+"/Frame/%06d.jpg"%(self.simulator.t+60))
+			img = cv2.imread("D:/crowdData/"+self.simulator.name+"/Frames/%06d.jpg"%(self.simulator.t+60))
 			warpedImg = cv2.warpPerspective(img,M,(3*warpscale,3*warpscale))
 			self.sceneImg[self.vtail]=image.ImageData(3*warpscale,3*warpscale,'BGR',warpedImg.tostring())
 			self.vtail=(self.vtail+1)%self.buffLen
@@ -79,6 +110,7 @@ class simWindow(pyglet.window.Window):
 		                          x=window.width//2, y=window.height//2,
 		                          color=(255,255,255,255),
 		                          anchor_x='center', anchor_y='center')
+
 	def on_draw(self):
 		glClear(GL_COLOR_BUFFER_BIT)
 		glClearColor(0.1, 0.5, 0.3, 0.5);
@@ -87,6 +119,7 @@ class simWindow(pyglet.window.Window):
 		for vlist in self.wallList:
 			vlist.draw(pyglet.gl.GL_POLYGON)
 		self.curPosList.draw(pyglet.gl.GL_POINTS)
+		self.depthList.draw(pyglet.gl.GL_LINES)
 		self.label.draw()
 
 
@@ -100,7 +133,7 @@ for i in range(0,10):
 platform = pyglet.window.get_platform()
 display = platform.get_default_display()
 screens = display.get_screens()
-window = simWindow(fullscreen=True, screen=screens[0],simulator=simulator)
+window = simWindow(fullscreen=True, screen=screens[1],simulator=simulator)
 
 simRuning=True
 def simUpdate(dt):

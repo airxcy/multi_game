@@ -202,6 +202,7 @@ class graphicsConference(ResearchTree):
 		self.addChild("GAIL++","Mode Clustering",np.array([9,15]))
 
 
+
 class Thesis(ResearchTree):
 	def __init__(self,name):
 		ResearchTree.__init__(self,name)

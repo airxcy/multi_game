@@ -1,8 +1,9 @@
 from environment import *
 from Agent import *
+from trigonometry import *
 import os
-
-
+num_direction=64
+radDiv=2*np.pi/num_direction
 class Simulator():
 	def __init__(self):
 		self.agentQue=np.empty((0), dtype=Agent)
@@ -14,18 +15,17 @@ class Simulator():
 		self.realTrk=[]
 		self.realIds=[]
 		self.name=0
-		self.Ndir=64
-		self.radDiv=2*np.pi/self.Ndir
+
 		self.timeStep=20
 	def load(self,name):
 		self.name=name
 		self.scene.loadwalls(name)
-		dirpath="../crowdData/"+name+"_%02d_%d"%(self.timeStep,num_direction)
+		dirpath="D:/crowdData/"+name+"_%02d_%d"%(self.timeStep,num_direction)
 		if os.path.isdir(dirpath):
 			print("load path:"+dirpath)
 		else:
 			os.mkdir(dirpath)
-		data=np.load("../crowdData/"+name+".npz")
+		data=np.load("D:/crowdData/"+name+"/trk_ids.npz")
 		self.realTrk=data['trks']
 		self.realIds=data['ids']
 		self.numtrk=self.realTrk.shape[0]
@@ -34,7 +34,7 @@ class Simulator():
 		for trk in self.realTrk:
 			if trk.shape[0]>1:
 				newHuman = Human()
-				newHuman.initFromTrk(trk[0::self.timeStep],i)
+				newHuman.initFromTrk(trk[0::self.timeStep],i,num_direction)
 				self.npc.append(newHuman)
 				i+=1
 		# trks=
@@ -44,7 +44,8 @@ class Simulator():
 	def disappear(self,idxset):
 		self.agentQue=np.delete(self.agentQue,idxset)
 	def T(self):
-		self.T_real()
+		if self.t%self.timeStep==0:
+			self.T_real()
 		for agent in self.agentQue:
 			action = agent.policy()
 			newStates=agentState()
@@ -55,84 +56,65 @@ class Simulator():
 			newStates.prefSpd=agent.state.prefSpd
 			agent.updateStates(newStates)
 		self.t+=1
-
-		# 	txtcoord=txtcoord+str(agent.state.x)+","+str(agent.state.y)+","
-		#	print(txtcoord)
 	def T_real(self):
 		for human in self.npc:
 			if self.t==human.born:
 				self.mortals=np.append(self.mortals,human.id)
-		carnage=np.empty((0), dtype=int)
+		carnage=[]
+		i_pos=0
 		for i in self.mortals:
 			human = self.npc[i]
 			human.age=human.age+1
-			print(human.age,human.life)
 			if human.age>=human.life:
-				print(carnage)
-				carnage=np.append(carnage,i)
-		
+				carnage.append(i_pos)
+			i_pos=i_pos+1
 		self.mortals=np.delete(self.mortals,carnage)
-		# for i in self.mortals:
-		# 	human = self.npc[i]
-		# 	human.age=human.age+1
-			
-		# for i in self.mortals:
-		# 	human = self.npc[i]
-		# 	for obstacles in range(0,self.scene.walls):
-		# 		#https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-		# 		for radi in range(0,self.Ndir):
-		# 			rad = self.radDiv*(radi-self.Ndir/2+1)
-		# 			xc,yc=human.getLoc()
-		# 			xr,yr=angleVec(human.dirx,human.diry,rad)
-		# 			for k in range(0,int(obstacles.stacklen[j])):
-		# 				a=obstacles.polystack[j,k,:]
-		# 				b=obstacles.polystack[j,(k+1)%int(obstacles.stacklen[j]),:]
-		# 				xab=a[0]-b[0]
-		# 				yab=a[1]-b[1]
-		# 				lineangle = (yab*dx-dy*xab)
-		# 				if abs(lineangle)>0.0000001:
-		# 					crossx=((ci[1]-a[1])*dx*xab-dy*ci[0]*xab+yab*a[0]*dx)/lineangle
-		# 					if abs(dx)>0:
-		# 						crossy=dy/dx*(crossx-ci[0])+ci[1]
-		# 					else:
-		# 						crossy=yab/xab*(crossx-a[0])+a[1]
-		# 					if abs(xab)>0:
-		# 						t2=(crossx-b[0])/xab
-		# 					else:
-		# 						t2=(crossy-b[1])/yab
-		# 					if abs(dx)>0:
-		# 						t1=(crossx-ci[0])/dx
-		# 					else:
-		# 						t1=(crossy-ci[1])/dy
-		# 					if t2>=0 and t2<=1 and t1>=0:
-		# 						if depthVec[curi,radi]<0 or depthVec[curi,radi]>t1:
-		# 							depthVec[curi,radi]=t1
-		# added=[]
-		# addeidx=0
-		# for i in self.activeRecords:
-		# 	trki = self.realTrk[i]
-		# 	startifidx=int(trki[0,2])
-		# 	endfidx=trki[trki.shape[0]-1,2]
-		# 	if startifidx==self.t:
-		# 		x=trki[0,0]
-		# 		y=trki[0,1]
-		# 		x1=trki[19,0]
-		# 		y1=trki[19,1]
-		# 		dx=x1-x
-		# 		dy=y1-y
-		# 		dirlen = np.sqrt(dx*dx+dy*dy)
-		# 		desx=trki[trki.shape[0]-1,0]
-		# 		desy=trki[trki.shape[0]-1,1]
-		# 		newAgent = Agent(i,x,y,desx,desy,dirlen,dx,dy)
-		# 		# newAgent.observation=
+		# TODO calculate depth 
+		self.updateDepthSensor()
 
-		# 		self.realQue=np.append(self.realQue,newAgent)
-		# 		added.append(addeidx)
-
-		# 	addeidx+=1
-		# self.activeRecords=np.delete(self.activeRecords,added)
-		# for agent in self.realQue:
-
+	def updateDepthSensor(self):
+		for i in self.mortals:
+			human = self.npc[i]		
+			#https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+			for radi in range(0,num_direction):
+				rad = radDiv*(radi-num_direction/2+1)
+				xc,yc=human.getLoc()
+				dirx,diry=human.getDir()
+				xr,yr=angleVec(dirx,diry,rad)
+				depthVal=-1
+				for wall in self.scene.walls:
+					numdot=wall.shape[0]
+					for j in range(0,numdot):
+						a=wall[j,:]
+						j1=(j+1)%numdot
+						b=wall[j1,:]
+						xa=a[0]
+						ya=a[1]
+						xb=b[0]
+						yb=b[1]
+						denominator = ((xb-xa)*yr-(yb-ya)*xr)
+						if abs(denominator)>0.0000001:
+							lmda=((ya-yc)*xr-(xa-xc)*yr)/denominator
+							t=((xc-xa)*(yb-ya)-(yc-ya)*(xb-xa))/denominator
+							if lmda>0 and lmda<1 and t>0 and (depthVal<0 or depthVal>t):
+								# print(lmda,t)
+								depthVal=t
+				for hid in self.mortals:
+					if hid!=i:
+						pedestrain = self.npc[hid]
+						xp,yp=pedestrain.getLoc()
+						dx=xp-xc
+						dy=yp-yc
+						dist=np.sqrt(dx*dx+dy*dy)
+						if dist>0:
+							if depthVal<0 or dist<depthVal:
+								blockwidth=np.pi/(dist+1)
+								sign, centerRad=vec2Angle(dx/dist,dy/dist,dirx,diry)
+								if rad>sign*centerRad-blockwidth and rad<sign*centerRad+blockwidth:
+									depthVal=dist
+						else:
+							depthVal=dist
+				human.observations[human.age,radi]=depthVal
 	def visualScan(self,agent,depthvec,velovec):
 		cx=agent.x
 		cy=agent.y

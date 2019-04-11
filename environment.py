@@ -6,7 +6,7 @@ class Environment:
 		self.walls=[]
 	def loadwalls(self,sceneName):
 		self.scene=sceneName
-		file=open("../crowdData/"+self.scene+".txt","r")
+		file=open("D:/crowdData/"+self.scene+"/walls.txt","r")
 		line = file.readline().strip()
 		while line:
 			o=np.fromstring(line, dtype=int, sep=',')
